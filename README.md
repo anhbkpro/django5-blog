@@ -75,3 +75,38 @@ admin.site.register(Post)
 ```bash
 python manage.py shell
 ```
+
+# Installing PostgreSQL
+```bash
+docker pull postgres:16.2
+docker run --name blog_db -e POSRGRES_DB=blog -e POSTGRES_USER=blog -e POSTGRES_PASSWORD=postgres -d -p 5433:5432 postgres:16.2
+# install the psycopg PostgreSQL adapter for Python
+python -m pip install psycopg==3.1.18
+```admi
+
+# Dumping the existing data
+```bash
+python manage.py dumpdata --indent=2 --output=mysite_data.json
+```
+
+# Switching the database in the project
+- Update `.env` file:
+- Run `le` to load and export the environment variables
+- Update the `DATABASES` setting in the `mysite/settings.py` file:
+```python
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config('DB_NAME'),
+        "USER": config('DB_USER'),
+        "PASSWORD": config('DB_PASSWORD'),
+        "HOST": config('DB_HOST'),
+        "PORT": config('DB_PORT'),
+    }
+}
+
+```
+- Import the data into the new database:
+```bash
+python manage.py loaddata mysite_data.json
+```
