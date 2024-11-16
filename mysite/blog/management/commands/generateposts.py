@@ -8,44 +8,65 @@ import random
 from datetime import timedelta
 from taggit.models import Tag  # Assuming you're using django-taggit
 
+
 class Command(BaseCommand):
-    help = 'Generate fake blog posts with tags and comments'
+    help = "Generate fake blog posts with tags and comments"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--number',
-            type=int,
-            default=100,
-            help='Number of posts to create'
+            "--number", type=int, default=100, help="Number of posts to create"
         )
         parser.add_argument(
-            '--delete',
-            action='store_true',
-            help='Delete existing posts before creating new ones'
+            "--delete",
+            action="store_true",
+            help="Delete existing posts before creating new ones",
         )
         parser.add_argument(
-            '--min-comments',
+            "--min-comments",
             type=int,
             default=0,
-            help='Minimum number of comments per post'
+            help="Minimum number of comments per post",
         )
         parser.add_argument(
-            '--max-comments',
+            "--max-comments",
             type=int,
             default=5,
-            help='Maximum number of comments per post'
+            help="Maximum number of comments per post",
         )
 
     def generate_tags(self):
         """Generate a list of common blog tags"""
         common_tags = [
-            'Technology', 'Programming', 'Python', 'Django',
-            'Web Development', 'Tutorial', 'How-to', 'Guide',
-            'Tips', 'Best Practices', 'Software', 'Development',
-            'Code', 'Learning', 'Backend', 'Frontend', 'Database',
-            'API', 'Security', 'Performance', 'Testing', 'Debug',
-            'Framework', 'Library', 'Tools', 'Deployment', 'Cloud',
-            'DevOps', 'Architecture', 'Design Patterns'
+            "Technology",
+            "Programming",
+            "Python",
+            "Django",
+            "Web Development",
+            "Tutorial",
+            "How-to",
+            "Guide",
+            "Tips",
+            "Best Practices",
+            "Software",
+            "Development",
+            "Code",
+            "Learning",
+            "Backend",
+            "Frontend",
+            "Database",
+            "API",
+            "Security",
+            "Performance",
+            "Testing",
+            "Debug",
+            "Framework",
+            "Library",
+            "Tools",
+            "Deployment",
+            "Cloud",
+            "DevOps",
+            "Architecture",
+            "Design Patterns",
         ]
 
         # Create tags if they don't exist
@@ -70,8 +91,8 @@ class Command(BaseCommand):
         # Add code example
         code_samples = [
             'print("Hello, World!")',
-            'def example_function():\n    return True',
-            'class ExampleClass:\n    pass',
+            "def example_function():\n    return True",
+            "class ExampleClass:\n    pass",
             'if __name__ == "__main__":\n    main()',
         ]
         paragraphs.append(f"```python\n{random.choice(code_samples)}\n```\n")
@@ -106,18 +127,18 @@ class Command(BaseCommand):
                 email=faker.email(),
                 body=faker.paragraph(nb_sentences=random.randint(1, 3)),
                 created=comment_date,
-                active=True
+                active=True,
             )
 
     def handle(self, *args, **kwargs):
         faker = Faker()
-        number = kwargs['number']
-        min_comments = kwargs['min_comments']
-        max_comments = kwargs['max_comments']
+        number = kwargs["number"]
+        min_comments = kwargs["min_comments"]
+        max_comments = kwargs["max_comments"]
 
         # Delete existing posts if requested
-        if kwargs['delete']:
-            self.stdout.write('Deleting existing posts...')
+        if kwargs["delete"]:
+            self.stdout.write("Deleting existing posts...")
             Post.objects.all().delete()
             Comment.objects.all().delete()
 
@@ -128,17 +149,17 @@ class Command(BaseCommand):
         default_author, created = User.objects.get_or_create(
             id=1,
             defaults={
-                'username': 'admin',
-                'email': 'admin@example.com',
-                'is_staff': True,
-                'is_superuser': True
-            }
+                "username": "admin",
+                "email": "admin@example.com",
+                "is_staff": True,
+                "is_superuser": True,
+            },
         )
 
         if created:
-            default_author.set_password('admin123')
+            default_author.set_password("admin123")
             default_author.save()
-            self.stdout.write('Created default author (admin)')
+            self.stdout.write("Created default author (admin)")
 
         posts_created = 0
         comments_created = 0
@@ -166,8 +187,8 @@ class Command(BaseCommand):
                     slug=slug,
                     author=default_author,
                     body=self.generate_rich_content(faker),
-                    status='PB',
-                    publish=publish_date
+                    status="PB",
+                    publish=publish_date,
                 )
 
                 # Add random tags (2-5 tags per post)
@@ -185,18 +206,16 @@ class Command(BaseCommand):
                 if posts_created % 10 == 0:
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f'Created {posts_created} posts with {comments_created} comments...'
+                            f"Created {posts_created} posts with {comments_created} comments..."
                         )
                     )
 
             except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR(f'Error creating post: {str(e)}')
-                )
+                self.stdout.write(self.style.ERROR(f"Error creating post: {str(e)}"))
                 continue
 
         self.stdout.write(
             self.style.SUCCESS(
-                f'Successfully created {posts_created} posts with {comments_created} comments'
+                f"Successfully created {posts_created} posts with {comments_created} comments"
             )
         )
